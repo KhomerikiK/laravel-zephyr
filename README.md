@@ -67,3 +67,5 @@ The MIT License (MIT). Please see [License File](LICENSE.md) for more informatio
 ### Todo
 
 * Make filesystem disk dynamic (move to config)
+* Use stubs instead of hardcoding test file creation strings
+* Use Junit format instead of JSON?
