@@ -1,0 +1,24 @@
+{
+    "preset": "laravel",
+    "rules": {
+        "array_syntax": {"syntax": "short"},
+        "binary_operator_spaces": {
+            "operators": {
+                "=>": "align_single_space_minimal"
+            }
+        },
+        "method_argument_space": {
+            "on_multiline": "ensure_fully_multiline",
+            "keep_multiple_spaces_after_comma": true
+        },
+        "trailing_comma_in_multiline": {
+            "elements": ["arrays"]
+        },
+        "align_multiline_comment": true,
+        "phpdoc_align": true,
+        "phpdoc_summary": false,
+        "concat_space": {
+            "spacing": "one"
+        }
+    }
+}
