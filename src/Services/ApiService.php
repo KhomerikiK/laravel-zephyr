@@ -43,6 +43,19 @@ class ApiService
         );
     }
 
+    public function getTestExecutions(string $projectKey, ?string $testCycleId = null): ?array
+    {
+        return $this->get(
+            '/testexecutions?' . http_build_query(
+                [
+                    'projectKey' => $projectKey,
+                    'testCycle'  => $testCycleId,
+                    'maxResults' => $maxResults ?? config('zephyr.max_test_results'),
+                ]
+            )
+        );
+    }
+
     /*
     * Sends custom-built JSON results to zephyr
     */
