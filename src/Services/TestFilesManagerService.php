@@ -6,14 +6,11 @@ use DOMDocument;
 use Illuminate\Support\Facades\Storage;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use RedberryProducts\Zephyr\Traits\TestPatternMatcherTrait;
 use SimpleXMLElement;
 use Str;
 
 class TestFilesManagerService
 {
-    use TestPatternMatcherTrait;
-
     private array $existingTestIds;
 
     private string $projectKey;
@@ -51,6 +48,10 @@ class TestFilesManagerService
     {
         if (isset($structure['test_cases'])) {
             foreach ($structure['test_cases'] as $testCase) {
+                if ($testCase['customFields']['TestType'] !== 'Automated') {
+                    continue;
+                }
+
                 if ($this->testCaseExists($testCase)) {
                     continue;
                 }
@@ -84,8 +85,8 @@ class TestFilesManagerService
     private function testCaseExists(array $testCase): bool
     {
         foreach ($this->existingTestIds as $testArray) {
-            if ($testArray['test_id'] === $testCase['key']) {
-                $this->commandInstance->warn("Test case {$testCase['key']} already exists in {$testArray['file']}, skipping");
+            if ($testArray['fullTestCaseId'] === $testCase['key']) {
+                $this->commandInstance->warn("Test case {$testCase['key']} already exists in {$testArray['filePathRelativeToBasePath']}, skipping");
 
                 return true;
             }
@@ -118,27 +119,54 @@ class TestFilesManagerService
         $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
 
         foreach ($iterator as $file) {
+            // Skip directories
             if ($file->isDir()) {
                 continue;
             }
+
             $filePath = $file->getPathname();
-            $content = file_get_contents($filePath);
-            preg_match_all($this->getTestIdPattern($this->projectKey), $content, $matches);
+            $fileExtension = pathinfo($filePath, PATHINFO_EXTENSION);
 
-            foreach ($matches[1] as $match) {
-                $testIds = explode(',', $match);
-
-                foreach ($testIds as $testId) {
-                    $testId = trim($testId);
-                    // check for duplicate test id's and skip
-                    if (isset($seenTests[$testId])) {
-                        //echo "Warning: Duplicate test ID '$testId' found in file $filePath\n";
-                        continue;
-                    }
-                    $seenTests[$testId] = true;
-                    $result[] = ['test_id' => $testId, 'file' => $filePath];
-                }
+            // Should be PHP file. Otherwise, test case file name is incorrect
+            if (strtolower($fileExtension) !== 'php') {
+                continue;
             }
+
+            $fileName = pathinfo($filePath, PATHINFO_FILENAME);
+
+            // Should match the format. Otherwise, test case file name is incorrect
+            if (! str($fileName)->is($this->projectKey . '-T*-*')) {
+                continue;
+            }
+
+            $testCaseId = str($fileName)
+                ->after($this->projectKey . '-T')
+                ->before('-')
+                ->toString();
+
+            // Should be integer. Otherwise, test case file name is incorrect
+            if (! ctype_digit($testCaseId)) {
+                continue;
+            }
+
+            // Get full test case id (including project key)
+            $fullTestCaseId = str($fileName)
+                ->before('-')
+                ->append('-', str($fileName)->after('-')->before('-'))
+                ->trim()
+                ->toString();
+
+            // check for duplicate test id's and skip
+            if (isset($seenTests[$fullTestCaseId])) {
+                //echo "Warning: Duplicate test ID '$testId' found in file $filePath\n";
+                continue;
+            }
+            $seenTests[$fullTestCaseId] = true;
+            $result[] = [
+                'fullTestCaseId'             => $fullTestCaseId,
+                'fullFilePath'               => $filePath,
+                'filePathRelativeToBasePath' => str($filePath)->after(base_path() . '/'),
+            ];
         }
 
         return $result;

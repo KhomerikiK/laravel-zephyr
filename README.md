@@ -13,7 +13,7 @@ composer require redberryproducts/laravel-zephyr
 You can publish the config file with:
 
 ```bash
-sail php artisan vendor:publish --provider="RedberryProducts\Zephyr\ZephyrServiceProvider"
+php artisan vendor:publish --provider="RedberryProducts\Zephyr\ZephyrServiceProvider"
 ```
 
 This is the contents of the published config file:
@@ -32,13 +32,13 @@ Run pest tests using `pest --log-junit storage/app/junit.xml`
 You should get project key from test cases/folders index. For example, if test case ID is `SVB-T1`, project key is `SVB`
 
 ```bash
-sail artisan zephyr:generate $projectKey
+php artisan zephyr:generate $projectKey
 ```
 
 ### Sending test results to Zephyr
 
 ```bash
-sail artisan zephyr:results $projectKey
+php artisan zephyr:results $projectKey
 ```
 
 ## Testing
