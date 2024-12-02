@@ -6,12 +6,10 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use RedberryProducts\Zephyr\Helpers\TestsStructureArrayBuilder;
 use RedberryProducts\Zephyr\Traits\CommandsServicesTrait;
-use RedberryProducts\Zephyr\Traits\TestPatternMatcherTrait;
 
 class GenerateCommand extends Command
 {
     use CommandsServicesTrait;
-    use TestPatternMatcherTrait;
 
     protected $signature = 'zephyr:generate {projectKey}';
 
@@ -59,7 +57,8 @@ class GenerateCommand extends Command
             ->setCommandInstance($this);
 
         // Retrieve existing tests
-        $existingTestIds = $this->testFilesManager->scanDirectoryForTestIds(Storage::disk('local')->path('tests/Browser'));
+        $existingTestIds = $this->testFilesManager
+            ->scanDirectoryForTestIds(base_path('tests/Browser'));
 
         // Create test folders / files
         $this->testFilesManager->setExistingTestIds($existingTestIds)

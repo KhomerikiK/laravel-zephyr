@@ -5,13 +5,12 @@ namespace RedberryProducts\Zephyr\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Storage;
+use RedberryProducts\Zephyr\Helpers\PatternsMatcherHelper;
 use RedberryProducts\Zephyr\Traits\CommandsServicesTrait;
-use RedberryProducts\Zephyr\Traits\TestPatternMatcherTrait;
 
 class SendResults extends Command
 {
     use CommandsServicesTrait;
-    use TestPatternMatcherTrait;
 
     /**
      * The signature of the command.
@@ -49,7 +48,7 @@ class SendResults extends Command
 
         $testcases = $this->testFilesManager->extractTestcases($xmlObject);
         foreach ($testcases as $testcase) {
-            preg_match_all($this->getTestIdPattern($projectKey), $testcase['name'], $matches);
+            preg_match_all(PatternsMatcherHelper::getTestFileIdMatcherPattern($projectKey), $testcase['name'], $matches);
 
             foreach ($matches[1] as $match) {
                 $testIds = explode(',', $match);

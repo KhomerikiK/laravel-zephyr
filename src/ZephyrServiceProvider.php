@@ -3,9 +3,8 @@
 namespace RedberryProducts\Zephyr;
 
 use RedberryProducts\Zephyr\Commands\GenerateCommand;
+use RedberryProducts\Zephyr\Commands\RunTestCycle;
 use RedberryProducts\Zephyr\Commands\SendResults;
-use RedberryProducts\Zephyr\Services\ApiService;
-use RedberryProducts\Zephyr\Services\TestFilesManagerService;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -19,6 +18,7 @@ class ZephyrServiceProvider extends PackageServiceProvider
             ->hasCommands([
                 GenerateCommand::class,
                 SendResults::class,
+                RunTestCycle::class,
             ]);
     }
 }
