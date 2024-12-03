@@ -177,27 +177,40 @@ class TestFilesManagerService
     */
     public function extractTestcases(SimpleXMLElement $element): array
     {
-        $testcases = [];
+        $testResults = [];
 
         foreach ($element->children() as $child) {
-            if ($child->getName() === 'testcase') {
-                $testcase = [
+            if ($child->getName() === 'testsuite') {
+                $testSuite = [
                     'name'       => (string) $child['name'],
-                    'class'      => (string) $child['class'],
-                    'classname'  => (string) $child['classname'],
                     'file'       => (string) $child['file'],
+                    'tests'      => (int) $child['tests'],
                     'assertions' => (int) $child['assertions'],
+                    'errors'     => (int) $child['errors'],
+                    'failures'   => (string) $child['failures'],
                     'time'       => (float) $child['time'],
-                    'failure'    => (string) $child->failure,
+                    'error'      => '',
                 ];
 
-                $testcases[] = $testcase;
-            } else {
-                $testcases = array_merge($testcases, $this->extractTestcases($child));
+                // Extract error message from Junit file
+                if ($testSuite['errors'] > 0 || $testSuite['failures'] > 0) {
+                    foreach ($child->children() as $testCase) {
+                        if ($testCase->getName() === 'testcase') {
+                            foreach ($testCase->children() as $error) {
+                                if ($error->getName() === 'error') {
+                                    $testSuite['error'] = (string) $error;
+                                    break 2; // Exit both loops when the error is found
+                                }
+                            }
+                        }
+                    }
+                }
+
+                $testResults[] = $testSuite;
             }
         }
 
-        return $testcases;
+        return $testResults;
     }
 
     private function mergeCypressJunitFilesIntoOne($sourceDirectory, $targetFile): void

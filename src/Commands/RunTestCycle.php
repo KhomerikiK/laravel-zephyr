@@ -88,7 +88,11 @@ class RunTestCycle extends Command
         $duskTestFilesCLICommand = PatternsMatcherHelper::buildTestFilesIdsParameterForCLI($testCasesThatShouldBeExecuted);
 
         $this->info('Executing tests...');
-        $process = Process::fromShellCommandline("php artisan dusk --log-junit storage/app/junit.xml $duskTestFilesCLICommand");
+        $process = Process::fromShellCommandline(
+            command: "php artisan dusk --log-junit storage/app/junit.xml $duskTestFilesCLICommand",
+            timeout: null
+        );
+
         $process->setTty(true); // Enable real-time terminal output if supported
 
         // Run command and output everything
@@ -126,6 +130,9 @@ class RunTestCycle extends Command
         // This filtering gets test cases that where matched in test execution and also
         // has attribute "Automated", which indicates that this test case
         // should be executed on automated testing
+
+        // This step is only needed to read TestType, as only test cases have custom field
+        // TestType, not test executions.
 
         return collect($testCases['values'])
             ->filter(function ($testCase) use ($uniqueTestCaseIdsFromExecution) {
