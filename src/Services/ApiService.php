@@ -56,6 +56,21 @@ class ApiService
         );
     }
 
+    public function updateTestExecution(string $statusName, string $testExecutionId, ?float $executionTime, string $comment): Response
+    {
+        return $this->baseHttp()
+            ->acceptJson()
+            ->put(
+                rtrim(config('zephyr.base_url'), '/') . "/testexecutions/$testExecutionId",
+                [
+                    // TODO: statuses should be from .env?
+                    'statusName'    => $statusName,
+                    'executionTime' => $executionTime,
+                    'comment'       => $comment,
+                ]
+            );
+    }
+
     /*
     * Sends custom-built JSON results to zephyr
     */
