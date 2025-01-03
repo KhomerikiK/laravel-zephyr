@@ -89,7 +89,7 @@ class RunTestCycle extends Command
 
         $this->info('Executing tests...');
         $process = Process::fromShellCommandline(
-            command: "php artisan dusk --log-junit storage/app/junit.xml $duskTestFilesCLICommand",
+            command: "php artisan dusk --without-tty --log-junit storage/app/junit.xml $duskTestFilesCLICommand",
             timeout: null
         );
 
