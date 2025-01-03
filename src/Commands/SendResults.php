@@ -35,6 +35,8 @@ class SendResults extends Command
         $projectKey = $this->argument('projectKey');
         $testCycleId = $this->argument('testCycleId');
 
+        $this->info('Getting results of junit file...');
+
         $xml = Storage::disk('local')->get('junit.xml');
         $xmlObject = simplexml_load_string($xml);
 
@@ -47,9 +49,13 @@ class SendResults extends Command
 
         $filteredTestExecutions = $this->filterLatestExecutionsForTestCases($testExecutions);
 
+        $this->info('Extracting test results...');
+
         $rawJunitTestsResults = $this->testFilesManager->extractTestcases($xmlObject);
 
         $finalResults = $this->matchExecutionsForTestCases($filteredTestExecutions, $rawJunitTestsResults);
+
+        $this->info('Sending test results one by one...');
 
         foreach ($finalResults as $testResult) {
             $this->apiService->updateTestExecution(
@@ -59,7 +65,10 @@ class SendResults extends Command
                 executionTime: $testResult['time'],
                 comment: $testResult['error']
             );
+            $this->info('Execution ' . $testResult['testExecutionId'] . ' uploaded successfully...');
         }
+
+        $this->info('Results sent successfully.');
 
         return self::SUCCESS;
     }
