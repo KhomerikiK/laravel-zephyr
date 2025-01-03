@@ -93,16 +93,10 @@ class RunTestCycle extends Command
             timeout: null
         );
 
-        $process->setTty(true); // Enable real-time terminal output if supported
-
         // Run command and output everything
-        $process->run(function ($type, $buffer) {
-            if ($type === Process::ERR) {
-                echo "Error: $buffer";
-            } else {
-                echo $buffer;
-            }
-        });
+        $process->run();
+
+        echo $process->getOutput();
 
         return self::SUCCESS;
     }
